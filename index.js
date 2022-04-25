@@ -25,14 +25,42 @@ class AddAssetPlugin {
   }
 
   apply(compiler) {
+    function replacePlaceholdersInFilename(filename, fileContent, compilation) {
+      if (/\[\\*([\w:]+)\\*\]/i.test(filename) === false) {
+        return { path: filename, info: {} };
+      }
+      const hash = compiler.webpack.util.createHash(
+        compilation.outputOptions.hashFunction
+      );
+      hash.update(fileContent);
+      if (compilation.outputOptions.hashSalt) {
+        hash.update(compilation.outputOptions.hashSalt);
+      }
+      const contentHash = hash
+        .digest(compilation.outputOptions.hashDigest)
+        .slice(0, compilation.outputOptions.hashDigestLength);
+      return compilation.getPathWithInfo(filename, {
+        contentHash,
+        chunk: {
+          hash: contentHash,
+          contentHash,
+        },
+      });
+    }
     compiler.hooks.thisCompilation.tap("AddAssetPlugin", (compilation) => {
       compilation.hooks.processAssets.tap(
         {
           name: "AddAssetPlugin",
+          //stage: webpack.Compilation.PROCESS_ASSETS_STAGE_SUMMARIZE,
           stage: webpack.Compilation.PROCESS_ASSETS_STAGE_SUMMARIZE,
         },
         () => {
-          this.assets.forEach(function (asset) {
+          this.assets.forEach((asset) => {
+            asset.fileName = replacePlaceholdersInFilename(
+              asset.fileName,
+              asset.content,
+              compilation
+            ).path;
             compilation.emitAsset(
               asset.fileName,
               new webpack.sources.RawSource(asset.content)
