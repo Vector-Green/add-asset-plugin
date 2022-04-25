@@ -1,6 +1,6 @@
 {
   "name": "add-asset-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Webpack plugins that emits assets at any compilation stages",
   "main": "index.js",
   "repository": {
