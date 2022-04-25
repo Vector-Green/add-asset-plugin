@@ -2,6 +2,8 @@
 
 ## emits assets at some compilations stages
 
+[`npm i add-asset-plugin --save-dev` `yarn add add-asset-plugin --dev`](https://www.npmjs.com/package/add-asset-plugin)
+
 ### Example
 
 #### Vue 3 cli
